@@ -1,5 +1,9 @@
 # Workflow Builder
 
+**Live Deployments:**
+- **Frontend:** https://workflow-builderfrontend.netlify.app/
+- **Backend API:** https://workflow-builder-backend-8f4y.onrender.com/api
+
 A production-ready full-stack web application for designing and executing multi-step AI processing pipelines using Google Gemini LLM.
 
 ## 🎯 Features

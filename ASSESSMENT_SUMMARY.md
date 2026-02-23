@@ -5,8 +5,8 @@
 A production-ready full-stack web application for designing and executing multi-step AI processing pipelines using Google Gemini LLM.
 
 **Live Application:**
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:8001/api
+- Frontend: https://workflow-builderfrontend.netlify.app/
+- Backend API: https://workflow-builder-backend-8f4y.onrender.com/api
 
 ---
 
