@@ -110,14 +110,14 @@ function RunWorkflow() {
           {selectedWorkflow && (
             <div className="bg-gray-50 p-4 rounded-md">
               <h4 className="text-sm font-medium text-gray-700 mb-2">Pipeline Steps:</h4>
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-wrap items-center gap-2">
                 {selectedWorkflow.steps.map((step, idx) => (
                   <React.Fragment key={idx}>
-                    <div className="bg-white px-3 py-1 rounded-md border border-gray-200 text-sm">
+                    <div className="bg-white px-3 py-1 rounded-md border border-gray-200 text-sm whitespace-nowrap">
                       {idx + 1}. {STEP_LABELS[step]}
                     </div>
                     {idx < selectedWorkflow.steps.length - 1 && (
-                      <span className="text-gray-400">→</span>
+                      <span className="text-gray-400 shrink-0">→</span>
                     )}
                   </React.Fragment>
                 ))}

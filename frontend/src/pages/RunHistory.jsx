@@ -111,14 +111,14 @@ function RunHistory() {
                     {/* Steps */}
                     <div className="mt-4">
                       <h4 className="text-sm font-medium text-gray-700 mb-2">Processing Steps:</h4>
-                      <div className="flex items-center space-x-2 mb-3">
+                      <div className="flex flex-wrap items-center gap-2 mb-3">
                         {run.steps.map((step, idx) => (
                           <React.Fragment key={idx}>
-                            <div className="bg-primary-100 text-primary-700 px-2 py-1 rounded text-xs font-medium">
+                            <div className="bg-primary-100 text-primary-700 px-2 py-1 rounded text-xs font-medium whitespace-nowrap">
                               {STEP_LABELS[step]}
                             </div>
                             {idx < run.steps.length - 1 && (
-                              <span className="text-gray-400">→</span>
+                              <span className="text-gray-400 shrink-0">→</span>
                             )}
                           </React.Fragment>
                         ))}
