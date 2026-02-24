@@ -19,14 +19,15 @@ const STEP_PROMPTS = {
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Exponential backoff retry logic
-async function retryWithBackoff(fn, maxRetries = 3) {
+async function retryWithBackoff(fn, maxRetries = 5) {
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       return await fn();
     } catch (error) {
-      // Retry only on 429 (rate limit) errors
-      if (error.response?.status === 429) {
-        const delay = Math.pow(2, attempt) * 1000; // 1s, 2s, 4s
+      // Retry only on 429 (rate limit) or 503 (service unavailable) errors
+      if (error.response?.status === 429 || error.response?.status === 503) {
+        // Significantly longer delay for free tier: 4s, 8s, 16s, 32s
+        const delay = Math.pow(2, attempt + 2) * 1000;
         console.log(`Rate limited. Retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})...`);
         await sleep(delay);
 
@@ -106,21 +107,28 @@ export async function processWorkflow(steps, initialInput) {
     // Output of current step becomes input for next step
     currentInput = output;
 
-    // Add 1-second delay between LLM calls (except after last step)
+    // Add 4-second delay between LLM calls to respect strict free tier quota
     if (i < steps.length - 1) {
-      await sleep(1000);
+      await sleep(4000);
     }
   }
 
   return outputs;
 }
 
-// Health check for LLM
+// Health check for LLM with explicit hard timeout
 export async function checkLLMHealth() {
   try {
-    await retryWithBackoff(() => callGemini('Hello'), 1);
+    // Prevent the health check itself from hanging due to rate limits or dead connections
+    const result = await Promise.race([
+      callGemini('Hello'),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('LLM connection timed out')), 5000))
+    ]);
     return { status: 'healthy', message: 'LLM is reachable' };
   } catch (error) {
+    if (error.response?.status === 429 || error.response?.status === 503) {
+      return { status: 'unhealthy', message: 'LLM is currently rate limited or overloaded' };
+    }
     return { status: 'unhealthy', message: error.message };
   }
 }
