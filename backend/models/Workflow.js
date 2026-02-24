@@ -23,7 +23,7 @@ const workflowSchema = new mongoose.Schema({
       },
       message: 'Workflow must have 2-4 unique steps'
     },
-    enum: ['clean', 'summarize', 'keypoints', 'tag']
+    enum: ['clean', 'summarize', 'extract', 'tag']
   },
   createdAt: {
     type: Date,

@@ -11,7 +11,7 @@ const router = express.Router();
 // Execute workflow
 router.post('/', auth, validate(executeWorkflowSchema), async (req, res) => {
   try {
-    const { workflowId, input } = req.body;
+    const { workflowId, initialInput } = req.body;
 
     // Fetch workflow and verify ownership
     const workflow = await Workflow.findOne({ _id: workflowId, userId: req.user._id });
@@ -25,7 +25,7 @@ router.post('/', auth, validate(executeWorkflowSchema), async (req, res) => {
     let error = null;
 
     try {
-      outputs = await processWorkflow(workflow.steps, input);
+      outputs = await processWorkflow(workflow.steps, initialInput);
     } catch (err) {
       console.error('Error processing workflow:', err);
       status = 'failed';
@@ -38,7 +38,7 @@ router.post('/', auth, validate(executeWorkflowSchema), async (req, res) => {
       userId: req.user._id,
       workflowId: workflow._id,
       workflowName: workflow.name,
-      input,
+      input: initialInput,
       steps: workflow.steps,
       outputs,
       status,

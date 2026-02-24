@@ -7,11 +7,11 @@ const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/
 // Step-specific prompts
 const STEP_PROMPTS = {
   clean: (text) => `Clean the following text by removing extra whitespace and fixing basic grammar. Return only the cleaned text without any additional commentary:\n\n${text}`,
-  
+
   summarize: (text) => `Summarize the following text into approximately 5 lines. Be concise and capture the main points:\n\n${text}`,
-  
-  keypoints: (text) => `Extract the key points from the following text and return them as bullet points. Each point should be on a new line starting with a bullet (•):\n\n${text}`,
-  
+
+  extract: (text) => `Extract the key points from the following text and return them as bullet points. Each point should be on a new line starting with a bullet (•):\n\n${text}`,
+
   tag: (text) => `Classify the following text into ONE of these categories: Technology, Finance, Health, Education, or Other. Return ONLY the category name, nothing else:\n\n${text}`
 };
 
@@ -29,7 +29,7 @@ async function retryWithBackoff(fn, maxRetries = 3) {
         const delay = Math.pow(2, attempt) * 1000; // 1s, 2s, 4s
         console.log(`Rate limited. Retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})...`);
         await sleep(delay);
-        
+
         if (attempt === maxRetries - 1) {
           throw new Error('Max retries reached for rate limit');
         }
@@ -47,7 +47,7 @@ async function callGemini(prompt) {
   if (!apiKey) {
     throw new Error('GEMINI_API_KEY not configured');
   }
-  
+
   const response = await axios.post(
     `${GEMINI_API_URL}?key=${apiKey}`,
     {
@@ -70,7 +70,7 @@ async function callGemini(prompt) {
   if (!text) {
     throw new Error('No text response from Gemini');
   }
-  
+
   return text.trim();
 }
 
@@ -93,19 +93,19 @@ export async function processWorkflow(steps, initialInput) {
   for (let i = 0; i < steps.length; i++) {
     const step = steps[i];
     console.log(`Processing step ${i + 1}/${steps.length}: ${step}`);
-    
+
     // Process the step
     const output = await processStep(step, currentInput);
-    
+
     outputs.push({
       step,
       output,
       timestamp: new Date()
     });
-    
+
     // Output of current step becomes input for next step
     currentInput = output;
-    
+
     // Add 1-second delay between LLM calls (except after last step)
     if (i < steps.length - 1) {
       await sleep(1000);
