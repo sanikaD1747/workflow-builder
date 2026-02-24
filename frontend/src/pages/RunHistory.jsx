@@ -49,10 +49,10 @@ function RunHistory() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div>
-        <h2 className="text-3xl font-bold text-gray-900">Run History</h2>
-        <p className="mt-2 text-gray-600">View the last 5 workflow executions</p>
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Run History</h2>
+        <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">View the last 5 workflow executions</p>
       </div>
 
       {runs.length === 0 ? (

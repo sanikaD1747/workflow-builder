@@ -76,15 +76,15 @@ function HealthDashboard() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900">Health Dashboard</h2>
-          <p className="mt-2 text-gray-600">Monitor system status and connectivity</p>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Health Dashboard</h2>
+          <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">Monitor system status and connectivity</p>
         </div>
         <button
           onClick={checkHealth}
           disabled={loading}
-          className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 transition-colors"
+          className="flex items-center justify-center w-full sm:w-auto px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 transition-colors"
           data-testid="refresh-health-button"
         >
           <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
@@ -96,8 +96,8 @@ function HealthDashboard() {
       {health && (
         <div
           className={`p-6 rounded-lg border-2 ${overallHealthy
-              ? 'bg-green-50 border-green-300'
-              : 'bg-red-50 border-red-300'
+            ? 'bg-green-50 border-green-300'
+            : 'bg-red-50 border-red-300'
             }`}
           data-testid="overall-status"
         >
