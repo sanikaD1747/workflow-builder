@@ -19,11 +19,15 @@ function HealthDashboard() {
       setLastChecked(new Date());
     } catch (err) {
       console.error('Error checking health:', err);
-      setHealth({
-        backend: { status: 'unhealthy', message: 'Failed to connect to backend' },
-        database: { status: 'unknown', message: 'Unable to check' },
-        llm: { status: 'unknown', message: 'Unable to check' },
-      });
+      if (err.response?.data?.backend) {
+        setHealth(err.response.data);
+      } else {
+        setHealth({
+          backend: { status: 'unhealthy', message: 'Failed to connect to backend' },
+          database: { status: 'unknown', message: 'Unable to check' },
+          llm: { status: 'unknown', message: 'Unable to check' },
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -91,11 +95,10 @@ function HealthDashboard() {
       {/* Overall Status */}
       {health && (
         <div
-          className={`p-6 rounded-lg border-2 ${
-            overallHealthy
+          className={`p-6 rounded-lg border-2 ${overallHealthy
               ? 'bg-green-50 border-green-300'
               : 'bg-red-50 border-red-300'
-          }`}
+            }`}
           data-testid="overall-status"
         >
           <div className="flex items-center">
@@ -106,9 +109,8 @@ function HealthDashboard() {
             )}
             <div>
               <h3
-                className={`text-xl font-semibold ${
-                  overallHealthy ? 'text-green-900' : 'text-red-900'
-                }`}
+                className={`text-xl font-semibold ${overallHealthy ? 'text-green-900' : 'text-red-900'
+                  }`}
               >
                 System Status: {overallHealthy ? 'Healthy' : 'Issues Detected'}
               </h3>

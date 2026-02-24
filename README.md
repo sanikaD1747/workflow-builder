@@ -12,6 +12,10 @@ A production-ready full-stack web application for designing and executing multi-
 - **Workflow Execution** - Run workflows sequentially with real-time intermediate outputs
 - **Run History** - View the last 5 workflow executions with full details
 - **Health Dashboard** - Monitor system status (Backend, MongoDB, LLM)
+- **User Authentication** - Secure JWT-based login, registration, and isolated user data
+- **Robust Validation** - End-to-end type safety and request validation with Zod
+- **Automated Testing** - Backend API and frontend component test suites using Jest & Vitest
+- **Fault Tolerance** - Exponential backoff and graceful LLM fallbacks for API rate limits
 
 ## 🛠️ Tech Stack
 
