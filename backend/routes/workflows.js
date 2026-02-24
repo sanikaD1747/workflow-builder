@@ -1,36 +1,24 @@
 import express from 'express';
 import Workflow from '../models/Workflow.js';
+import { auth } from '../middleware/auth.js';
+import { validate } from '../middleware/validate.js';
+import { createWorkflowSchema } from '../validators/schemas.js';
 
 const router = express.Router();
 
 // Create workflow
-router.post('/', async (req, res) => {
+router.post('/', auth, validate(createWorkflowSchema), async (req, res) => {
   try {
     const { name, steps } = req.body;
-    
-    // Validation
-    if (!name || !steps || !Array.isArray(steps)) {
-      return res.status(400).json({ error: 'Name and steps array are required' });
-    }
-    
-    if (steps.length < 2 || steps.length > 4) {
-      return res.status(400).json({ error: 'Workflow must have 2-4 steps' });
-    }
-    
-    // Check for unique steps
-    if (new Set(steps).size !== steps.length) {
-      return res.status(400).json({ error: 'All steps must be unique' });
-    }
-    
-    const validSteps = ['clean', 'summarize', 'keypoints', 'tag'];
-    const invalidSteps = steps.filter(step => !validSteps.includes(step));
-    if (invalidSteps.length > 0) {
-      return res.status(400).json({ error: `Invalid steps: ${invalidSteps.join(', ')}` });
-    }
-    
-    const workflow = new Workflow({ name, steps });
+
+    const workflow = new Workflow({
+      name,
+      steps,
+      userId: req.user._id
+    });
+
     await workflow.save();
-    
+
     res.status(201).json(workflow);
   } catch (error) {
     console.error('Error creating workflow:', error);
@@ -39,9 +27,11 @@ router.post('/', async (req, res) => {
 });
 
 // Get all workflows
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
   try {
-    const workflows = await Workflow.find().sort({ createdAt: -1 }).limit(100);
+    const workflows = await Workflow.find({ userId: req.user._id })
+      .sort({ createdAt: -1 })
+      .limit(100);
     res.json(workflows);
   } catch (error) {
     console.error('Error fetching workflows:', error);
@@ -50,9 +40,9 @@ router.get('/', async (req, res) => {
 });
 
 // Get single workflow
-router.get('/:id', async (req, res) => {
+router.get('/:id', auth, async (req, res) => {
   try {
-    const workflow = await Workflow.findById(req.params.id);
+    const workflow = await Workflow.findOne({ _id: req.params.id, userId: req.user._id });
     if (!workflow) {
       return res.status(404).json({ error: 'Workflow not found' });
     }
@@ -64,9 +54,9 @@ router.get('/:id', async (req, res) => {
 });
 
 // Delete workflow
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
   try {
-    const workflow = await Workflow.findByIdAndDelete(req.params.id);
+    const workflow = await Workflow.findOneAndDelete({ _id: req.params.id, userId: req.user._id });
     if (!workflow) {
       return res.status(404).json({ error: 'Workflow not found' });
     }

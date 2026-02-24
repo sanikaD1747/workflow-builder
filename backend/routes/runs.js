@@ -1,30 +1,29 @@
 import express from 'express';
 import Run from '../models/Run.js';
 import Workflow from '../models/Workflow.js';
+import { auth } from '../middleware/auth.js';
+import { validate } from '../middleware/validate.js';
+import { executeWorkflowSchema } from '../validators/schemas.js';
 import { processWorkflow } from '../services/llmService.js';
 
 const router = express.Router();
 
 // Execute workflow
-router.post('/', async (req, res) => {
+router.post('/', auth, validate(executeWorkflowSchema), async (req, res) => {
   try {
     const { workflowId, input } = req.body;
-    
-    if (!workflowId || !input) {
-      return res.status(400).json({ error: 'workflowId and input are required' });
-    }
-    
-    // Fetch workflow
-    const workflow = await Workflow.findById(workflowId);
+
+    // Fetch workflow and verify ownership
+    const workflow = await Workflow.findOne({ _id: workflowId, userId: req.user._id });
     if (!workflow) {
       return res.status(404).json({ error: 'Workflow not found' });
     }
-    
+
     // Process workflow with LLM
     let outputs;
     let status = 'completed';
     let error = null;
-    
+
     try {
       outputs = await processWorkflow(workflow.steps, input);
     } catch (err) {
@@ -33,9 +32,10 @@ router.post('/', async (req, res) => {
       error = err.message;
       outputs = [];
     }
-    
+
     // Save run to database
     const run = new Run({
+      userId: req.user._id,
       workflowId: workflow._id,
       workflowName: workflow.name,
       input,
@@ -44,17 +44,17 @@ router.post('/', async (req, res) => {
       status,
       error
     });
-    
+
     await run.save();
-    
+
     if (status === 'failed') {
-      return res.status(500).json({ 
-        error: 'Workflow execution failed', 
+      return res.status(500).json({
+        error: 'Workflow execution failed',
         details: error,
-        run 
+        run
       });
     }
-    
+
     res.status(201).json(run);
   } catch (error) {
     console.error('Error executing workflow:', error);
@@ -63,9 +63,9 @@ router.post('/', async (req, res) => {
 });
 
 // Get last 5 runs
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
   try {
-    const runs = await Run.find()
+    const runs = await Run.find({ userId: req.user._id })
       .sort({ createdAt: -1 })
       .limit(5)
       .populate('workflowId', 'name');
@@ -77,9 +77,9 @@ router.get('/', async (req, res) => {
 });
 
 // Get single run
-router.get('/:id', async (req, res) => {
+router.get('/:id', auth, async (req, res) => {
   try {
-    const run = await Run.findById(req.params.id).populate('workflowId', 'name');
+    const run = await Run.findOne({ _id: req.params.id, userId: req.user._id }).populate('workflowId', 'name');
     if (!run) {
       return res.status(404).json({ error: 'Run not found' });
     }

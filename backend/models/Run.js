@@ -1,6 +1,11 @@
 import mongoose from 'mongoose';
 
 const runSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
   workflowId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Workflow',

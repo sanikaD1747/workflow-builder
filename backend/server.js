@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import workflowRoutes from './routes/workflows.js';
 import runRoutes from './routes/runs.js';
 import healthRoutes from './routes/health.js';
+import authRoutes from './routes/auth.js';
 
 // Load environment variables
 dotenv.config();
@@ -28,14 +29,15 @@ app.use((req, res, next) => {
 });
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/workflows', workflowRoutes);
 app.use('/api/runs', runRoutes);
 app.use('/api/health', healthRoutes);
 
 // Root route
 app.get('/', (req, res) => {
-  res.json({ 
-    message: 'Workflow Builder API', 
+  res.json({
+    message: 'Workflow Builder API',
     version: '1.0.0',
     endpoints: {
       workflows: '/api/workflows',
@@ -62,7 +64,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 const startServer = async () => {
   try {
     let mongoUri = MONGO_URL;
-    
+
     // If we're using localhost and want to use memory server
     if (mongoUri.includes('localhost') || process.env.USE_MEMORY_DB === 'true') {
       console.log('Starting MongoDB Memory Server...');
@@ -73,7 +75,7 @@ const startServer = async () => {
 
     await mongoose.connect(mongoUri);
     console.log('✅ Connected to MongoDB');
-    
+
     // Start server
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`✅ Server running on port ${PORT}`);

@@ -1,6 +1,11 @@
 import mongoose from 'mongoose';
 
 const workflowSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
   name: {
     type: String,
     required: true,
@@ -10,7 +15,7 @@ const workflowSchema = new mongoose.Schema({
     type: [String],
     required: true,
     validate: {
-      validator: function(steps) {
+      validator: function (steps) {
         // Must have 2-4 steps
         if (steps.length < 2 || steps.length > 4) return false;
         // All steps must be unique
