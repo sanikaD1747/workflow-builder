@@ -7,6 +7,7 @@ const STEP_LABELS = {
   clean: 'Clean Text',
   summarize: 'Summarize',
   keypoints: 'Extract Key Points',
+  extract: 'Extract Key Points',
   tag: 'Tag Category',
 };
 
@@ -59,17 +60,11 @@ function RunWorkflow() {
       // The instruction snippet also had `setLoading(true);` which is omitted here to avoid
       // introducing an undefined state variable and to maintain consistency with `setExecuting`.
 
-      await runAPI.execute({
-        workflowId: selectedWorkflowId, // Kept selectedWorkflowId as it's the ID, not the object
-        initialInput: inputText, // Changed 'input' to 'initialInput' and used 'inputText'
+      const response = await runAPI.execute({
+        workflowId: selectedWorkflowId,
+        initialInput: inputText,
       });
-      navigate('/history'); // Added navigation as per instruction
-
-      // The instruction snippet included `setResults(response.data);` after `navigate`.
-      // If navigation occurs, this line will not be reached or its effect will be lost.
-      // Therefore, it's removed to reflect the likely intent of navigating away.
-      // If results were still needed before navigation, the instruction would need clarification.
-
+      setResults(response.data);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to execute workflow');
     } finally {
