@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Play, Loader, CheckCircle, XCircle } from 'lucide-react';
 import { workflowAPI, runAPI } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 const STEP_LABELS = {
   clean: 'Clean Text',
@@ -10,6 +11,7 @@ const STEP_LABELS = {
 };
 
 function RunWorkflow() {
+  const navigate = useNavigate();
   const [workflows, setWorkflows] = useState([]);
   const [selectedWorkflowId, setSelectedWorkflowId] = useState('');
   const [inputText, setInputText] = useState('');
