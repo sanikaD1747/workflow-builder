@@ -5,7 +5,7 @@ import { workflowAPI } from '../services/api';
 const AVAILABLE_STEPS = [
   { key: 'clean', label: 'Clean Text', description: 'Removes extra whitespace and fixes basic grammar' },
   { key: 'summarize', label: 'Summarize', description: 'Condenses the input into ~5 lines' },
-  { key: 'keypoints', label: 'Extract Key Points', description: 'Returns bullet-point insights' },
+  { key: 'extract', label: 'Extract Key Points', description: 'Returns bullet-point insights' },
   { key: 'tag', label: 'Tag Category', description: 'Classifies text: Technology / Finance / Health / Education / Other' },
 ];
 
@@ -72,7 +72,12 @@ function WorkflowBuilder() {
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to create workflow');
+      if (err.response?.data?.details) {
+        const details = err.response.data.details;
+        setError(Array.isArray(details) ? details[0].message : 'Validation failed');
+      } else {
+        setError(err.response?.data?.error || 'Failed to create workflow');
+      }
     } finally {
       setLoading(false);
     }
@@ -123,7 +128,7 @@ function WorkflowBuilder() {
               Select Processing Steps (2-4 unique steps)
             </label>
             <p className="text-sm text-gray-500 mb-4">Selected: {selectedSteps.length}/4</p>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {AVAILABLE_STEPS.map((step) => {
                 const isSelected = selectedSteps.includes(step.key);
@@ -135,13 +140,12 @@ function WorkflowBuilder() {
                     type="button"
                     onClick={() => handleStepToggle(step.key)}
                     disabled={isDisabled}
-                    className={`p-4 border-2 rounded-lg text-left transition-all ${
-                      isSelected
-                        ? 'border-primary-500 bg-primary-50'
-                        : isDisabled
+                    className={`p-4 border-2 rounded-lg text-left transition-all ${isSelected
+                      ? 'border-primary-500 bg-primary-50'
+                      : isDisabled
                         ? 'border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed'
                         : 'border-gray-200 hover:border-primary-300'
-                    }`}
+                      }`}
                     data-testid={`step-${step.key}`}
                   >
                     <div className="flex items-start justify-between">
