@@ -121,9 +121,9 @@ export async function processWorkflow(steps, initialInput) {
     // Output of current step becomes input for next step
     currentInput = output;
 
-    // Add 4-second delay between LLM calls to respect strict free tier quota
+    // Add 1-second delay between LLM calls to prevent aggressive throttling on specific keys
     if (i < steps.length - 1) {
-      await sleep(4000);
+      await sleep(1000);
     }
   }
 
