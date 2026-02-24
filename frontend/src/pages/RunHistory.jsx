@@ -6,6 +6,7 @@ const STEP_LABELS = {
   clean: 'Clean Text',
   summarize: 'Summarize',
   keypoints: 'Extract Key Points',
+  extract: 'Extract Key Points',
   tag: 'Tag Category',
 };
 
