@@ -1,7 +1,16 @@
 import axios from 'axios';
 
 // Get API key from environment (will be loaded by server.js)
-const getGeminiApiKey = () => process.env.GEMINI_API_KEY;
+let currentKeyIndex = 0;
+const getGeminiApiKey = () => {
+  const keysStr = process.env.GEMINI_API_KEY || '';
+  const keys = keysStr.split(',').map(k => k.trim()).filter(Boolean);
+  if (keys.length === 0) return null;
+
+  const key = keys[currentKeyIndex % keys.length];
+  currentKeyIndex = (currentKeyIndex + 1) % keys.length;
+  return key;
+};
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
 // Step-specific prompts
